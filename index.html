@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>RoutinePal</title>
+  <link rel="icon" href="./img/morning-routine.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #212121;
+      --panel: #262e3b;
+      --surface: #1f1f1f;
+      --text: #ffffff;
+      --muted: #a9abb3;
+      --red: #c41e3a;
+      --red-light: #ff4d4d;
+      --round: 14px;
+
+      --gap: 14px;
+      --tile-size: 84px;
+      --max-width: 1100px;
+      --shadow: 0 8px 24px rgba(0,0,0,0.5);
+      --accent: #7cc6c6;
+      --glass: rgba(255,255,255,0.03);
+      --glass-2: rgba(255,255,255,0.02);
+      --control-h: 56px;
+    }
+    *{
+      font-family: "Poppins", sans-serif;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+
+    /* App container */
+    .app{max-width:var(--max-width);margin:18px auto;padding:12px;display:flex;flex-direction:column;gap:12px}
+
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--panel),var(--surface));display:flex;align-items:center;justify-content:center;font-weight:700;box-shadow:var(--shadow)}
+    .title{font-size:clamp(16px,2.2vw,20px);font-weight:700}
+    .subtitle{font-size:12px;color:var(--muted)}
+
+    .controls{display:flex;gap:8px;align-items:center}
+    .btn{background:linear-gradient(0deg,var(--panel),var(--surface));border:1px solid rgba(255,255,255,0.04);color:var(--text);padding:10px 12px;border-radius:10px;cursor:pointer;min-height:var(--control-h);font-weight:700}
+    .primary{background:linear-gradient(90deg,var(--red),var(--red-light));border:none}
+    .ghost{background:transparent;border:1px solid rgba(255,255,255,0.04)}
+
+    /* Main layout */
+    main{display:grid;grid-template-columns:300px 1fr 320px;gap:12px}
+
+    .panel{background:linear-gradient(180deg,var(--panel),var(--surface));border-radius:var(--round);padding:12px;box-shadow:var(--shadow)}
+    .panel h3{margin:0 0 8px 0;font-size:15px}
+    .muted{color:var(--muted);font-size:13px}
+
+    /* Activities (palette) */
+    .activities{display:flex;flex-direction:column;gap:10px}
+    .activity{display:flex;align-items:center;gap:12px;padding:10px;border-radius:12px;background:var(--glass);cursor:grab;border:1px solid rgba(255,255,255,0.02);min-height:64px}
+    .activity:active{cursor:grabbing}
+    .act-icon{width:56px;height:56px;border-radius:10px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;font-size:26px}
+    .act-content{flex:1}
+    .act-name{font-weight:800}
+    .act-meta{color:var(--muted);font-size:13px}
+    .add-btn{background:transparent;border:none;color:var(--accent);font-weight:800;cursor:pointer;font-size:20px}
+
+    /* Schedule */
+    .schedule-area{min-height:420px;display:flex;flex-direction:column;gap:12px}
+    .drop-hint{padding:18px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px dashed rgba(255,255,255,0.03);text-align:center;color:var(--muted)}
+    .schedule-list{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
+
+    .schedule-item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.03);}
+    .si-icon{width:64px;height:64px;border-radius:10px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;font-size:28px}
+    .si-body{flex:1;display:flex;flex-direction:column}
+    .si-title{font-weight:800}
+    .si-controls{display:flex;align-items:center;gap:8px}
+    .si-duration{width:88px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)}
+    .small-btn{background:transparent;border:1px solid rgba(255,255,255,0.03);border-radius:8px;padding:8px 10px;cursor:pointer;color:var(--muted)}
+
+    /* Right controls */
+    .panel .big{font-size:20px;font-weight:800}
+    .progress{height:12px;background:rgba(255,255,255,0.03);border-radius:8px;overflow:hidden}
+    .progress > span{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--red),var(--red-light));transition:width 0.25s linear}
+    .timer{font-weight:900;font-size:28px}
+    .aria-live{position:absolute!important;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+
+    footer{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:12px;background:var(--glass-2);color:var(--muted);font-size:13px}
+
+    /* MOBILE & TABLET RESPONSIVE RULES */
+    /* Tablet: show two columns (activities collapsed or below) */
+    @media (max-width:1000px){
+      main{grid-template-columns:1fr 440px}
+      .panel.right{order:1}
+      .activities{order:2}
+    }
+
+    /* Mobile: single column, activities horizontally scrollable and accessible via drawer */
+    @media (max-width:720px){
+      main{grid-template-columns:1fr}
+      .panel.right{display:none}
+      .activities{flex-direction:row;gap:10px;overflow:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch}
+      .activity{min-width:200px;flex:0 0 auto}
+
+      /* Larger touch targets */
+      .btn{min-height:56px;padding:12px 14px;font-size:16px}
+      .si-icon{width:56px;height:56px;font-size:24px}
+      .si-duration{width:76px}
+
+      /* Sticky bottom controls for easy reach */
+      .bottom-bar{position:fixed;left:12px;right:12px;bottom:env(safe-area-inset-bottom,12px);display:flex;gap:8px;padding:10px;border-radius:999px;background:linear-gradient(180deg,rgba(30,30,30,0.9),rgba(20,20,20,0.95));box-shadow:0 12px 30px rgba(0,0,0,0.6);z-index:999}
+      .bottom-bar .btn{flex:1}
+
+      /* Mobile floating FAB to open activities drawer */
+      #openActivitiesFab{position:fixed;right:18px;bottom:90px;background:linear-gradient(90deg,var(--red),var(--red-light));width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 30px rgba(0,0,0,0.6);z-index:999;border:none;color:white;font-weight:800}
+
+      /* Activities drawer (overlay) */
+      .activities-drawer{position:fixed;left:12px;right:12px;bottom:12px;top:70px;background:linear-gradient(180deg,var(--panel),var(--surface));border-radius:12px;padding:12px;z-index:998;box-shadow:0 24px 40px rgba(0,0,0,0.6);display:none;flex-direction:column;overflow:auto}
+      .activities-drawer.show{display:flex}
+    }
+
+    body.reduced-motion *{animation:none!important;transition:none!important}
+    .btn:focus,.activity:focus,.schedule-item:focus{outline:3px solid rgba(124,198,198,0.18);outline-offset:2px}
+
+    /* small helper */
+    .row{display:flex;gap:8px;align-items:center}
+
+  </style>
+</head>
+<body>
+  <div class="app" role="application">
+    <header>
+      <div class="brand">
+        <div class="logo">RP</div>
+        <div>
+          <div class="title">RoutinePal</div>
+          <div class="subtitle">Responsive for mobile & tablet</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn ghost" id="resetBtn">Reset</button>
+        <button class="btn" id="saveBtn">Save</button>
+        <button class="btn primary" id="startBtn">Start</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- Activities (left / drawer) -->
+      <section class="panel" aria-labelledby="activitiesTitle">
+        <h3 id="activitiesTitle">Activities</h3>
+        <div class="muted">Tap + to add. On mobile use the FAB to open full palette.</div>
+        <div class="activities" id="activitiesList" tabindex="0"></div>
+      </section>
+
+      <!-- Schedule -->
+      <section class="panel" aria-labelledby="scheduleTitle">
+        <h3 id="scheduleTitle">Today's Routine</h3>
+        <div class="muted">Tap an item to select. Use ▲/▼ to reorder on mobile.</div>
+        <div class="schedule-area">
+          <div id="dropHint" class="drop-hint">Drop activities here or tap + on an activity</div>
+          <ul id="scheduleList" class="schedule-list" aria-label="Schedule list"></ul>
+        </div>
+      </section>
+
+      <!-- Right controls (hidden on mobile) -->
+      <aside class="panel right" aria-labelledby="controlsTitle">
+        <h3 id="controlsTitle">Routine Controls</h3>
+        <div class="muted">Selected step</div>
+        <div id="selectedBox" style="margin:8px 0;padding:12px;border-radius:12px;background:rgba(255,255,255,0.02)"></div>
+
+        <div style="margin-top:8px">
+          <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div class="muted">Progress</div>
+            <div class="muted" id="progressCount">0 / 0</div>
+          </div>
+          <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+        </div>
+
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div class="muted">Timer</div>
+            <div class="timer" id="timerDisplay">00:00</div>
+          </div>
+
+          <div class="row">
+            <button class="btn" id="pauseBtn">Pause</button>
+            <button class="btn ghost" id="nextBtn">Skip</button>
+            <button class="btn ghost" id="stopBtn">Stop</button>
+          </div>
+
+          <div>
+            <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="reduceMotion"/> Reduce motion</label>
+            <div class="muted-note">Tip: reduce motion disables animated transitions for comfort.</div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="muted">Saved routines</div>
+          <select id="savedSelect" style="width:100%;margin-top:8px;background:transparent;border:1px solid rgba(255,255,255,0.03);padding:8px;border-radius:8px;color:var(--text)"></select>
+        </div>
+      </aside>
+
+    </main>
+
+    <footer>
+      <div>Made with care • RoutinePal</div>
+      <div class="muted">Tap items to edit • Works on desktop, tablet & mobile</div>
+    </footer>
+
+    <div class="aria-live" aria-live="polite" id="ariaLive">&nbsp;</div>
+
+    <!-- Mobile floating FAB + drawer -->
+    <button id="openActivitiesFab" title="Open activities" aria-label="Open activities">+</button>
+    <div class="activities-drawer" id="activitiesDrawer" aria-hidden="true">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-weight:800">Activities</div>
+        <button class="btn ghost" id="closeDrawer">Close</button>
+      </div>
+      <div id="drawerActivitiesList" style="display:flex;flex-direction:column;gap:8px;overflow:auto;padding-bottom:12px"></div>
+    </div>
+
+    <!-- Mobile bottom bar -->
+    <div class="bottom-bar" id="mobileBar" style="display:none">
+      <button class="btn" id="mPause">Pause</button>
+      <button class="btn" id="mNext">Skip</button>
+      <button class="btn primary" id="mStart">Start</button>
+    </div>
+
+  </div>
+
+  <script>
+    // ---------- Data ----------
+    const DEFAULT_ACTIVITIES = [
+      {id:'brush', name:'Brush Teeth', icon:'🪥', duration:60},
+      {id:'dress', name:'Get Dressed', icon:'👕', duration:120},
+      {id:'breakfast', name:'Breakfast', icon:'🥣', duration:300},
+      {id:'play', name:'Play Time', icon:'🧸', duration:600},
+      {id:'snack', name:'Snack', icon:'🍎', duration:180},
+      {id:'study', name:'Study / Practice', icon:'📚', duration:900},
+      {id:'calm', name:'Calm Corner', icon:'🌬️', duration:120}
+    ];
+
+    let schedule = [];
+
+    // DOM refs
+    const activitiesList = document.getElementById('activitiesList');
+    const drawerActivitiesList = document.getElementById('drawerActivitiesList');
+    const scheduleList = document.getElementById('scheduleList');
+    const dropHint = document.getElementById('dropHint');
+    const selectedBox = document.getElementById('selectedBox');
+    const progressBar = document.getElementById('progressBar');
+    const progressCount = document.getElementById('progressCount');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const ariaLive = document.getElementById('ariaLive');
+
+    // mobile UI
+    const openActivitiesFab = document.getElementById('openActivitiesFab');
+    const activitiesDrawer = document.getElementById('activitiesDrawer');
+    const closeDrawer = document.getElementById('closeDrawer');
+    const mobileBar = document.getElementById('mobileBar');
+
+    // Runner state
+    let running = false, paused = false, runnerInterval = null, runnerIndex = 0, runnerRemaining = 0;
+
+    // Reduced motion
+    const reduceMotion = document.getElementById('reduceMotion');
+    reduceMotion.addEventListener('change', ()=> document.body.classList.toggle('reduced-motion', reduceMotion.checked));
+
+    // Utilities
+    function uid(){ return 'u'+Math.random().toString(36).slice(2,9); }
+    function formatTime(sec){ sec = Math.max(0, Math.round(sec)); const m = Math.floor(sec/60); const s = sec%60; return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}` }
+    function saveToStorage(){ localStorage.setItem('routinepal-schedule', JSON.stringify(schedule)); }
+    function loadFromStorage(){ const raw = localStorage.getItem('routinepal-schedule'); if(raw){ try{ schedule = JSON.parse(raw); }catch(e){ schedule = []; } } }
+
+    // Render activities in both palette and drawer
+    function renderActivities(){ activitiesList.innerHTML=''; drawerActivitiesList.innerHTML=''; DEFAULT_ACTIVITIES.forEach(act=>{
+      const el = createActivityNode(act);
+      activitiesList.appendChild(el);
+      // drawer version
+      const del = createActivityNode(act, true);
+      drawerActivitiesList.appendChild(del);
+    }) }
+
+    function createActivityNode(act, drawer=false){
+      const el = document.createElement('div'); el.className='activity'; el.tabIndex=0; el.draggable=true;
+      el.dataset.activity = JSON.stringify(act);
+      el.innerHTML = `<div class="act-icon">${act.icon}</div><div class="act-content"><div class="act-name">${act.name}</div><div class="act-meta">${Math.round(act.duration/60)} min</div></div><button class="add-btn" aria-label="Add ${act.name}">+</button>`;
+
+      // Drag events (desktop)
+      el.addEventListener('dragstart', (e)=>{ e.dataTransfer.setData('text/plain', el.dataset.activity); el.classList.add('dragging'); });
+      el.addEventListener('dragend', ()=> el.classList.remove('dragging'));
+
+      // Add button (works on mobile)
+      el.querySelector('.add-btn').addEventListener('click', ()=> addActivityToSchedule(act));
+      el.addEventListener('keydown', (ev)=>{ if(ev.key==='Enter'){ addActivityToSchedule(act); } });
+      return el;
+    }
+
+    // Render schedule items
+    function renderSchedule(){ scheduleList.innerHTML=''; if(schedule.length===0){ dropHint.style.display='block'; } else { dropHint.style.display='none'; }
+      schedule.forEach((si, idx)=>{
+        const li = document.createElement('li'); li.className='schedule-item'; li.draggable=true; li.dataset.uid=si.uid; li.tabIndex=0;
+        li.innerHTML = `<div class="si-icon">${si.icon}</div>
+          <div class="si-body">
+            <div class="si-title">${si.name}</div>
+            <div class="si-controls"><input type="number" class="si-duration" min="5" step="5" value="${si.duration}" aria-label="Duration in seconds"/> <div class="muted">sec</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+            <div style="display:flex;gap:8px">
+              <button class="small-btn btn-up" aria-label="Move up">▲</button>
+              <button class="small-btn btn-down" aria-label="Move down">▼</button>
+            </div>
+            <button class="small-btn btn-delete" aria-label="Delete">✕</button>
+          </div>`;
+
+        scheduleList.appendChild(li);
+
+        // delete
+        li.querySelector('.btn-delete').addEventListener('click', ()=>{ schedule = schedule.filter(x=>x.uid!==si.uid); saveToStorage(); renderSchedule(); announce(`${si.name} removed`); });
+
+        // duration change
+        li.querySelector('.si-duration').addEventListener('change', (e)=>{ const v = parseInt(e.target.value)||5; si.duration = Math.max(5, v); saveToStorage(); });
+
+        // select item
+        li.addEventListener('click', (e)=>{ if(e.target.closest('.btn-up')||e.target.closest('.btn-down')||e.target.closest('.btn-delete')) return; selectStep(si, idx); });
+
+        // move up / down
+        li.querySelector('.btn-up').addEventListener('click', ()=>{ const i = schedule.findIndex(x=>x.uid===si.uid); if(i>0){ schedule.splice(i,1); schedule.splice(i-1,0,si); saveToStorage(); renderSchedule(); announce(`${si.name} moved up`); } });
+        li.querySelector('.btn-down').addEventListener('click', ()=>{ const i = schedule.findIndex(x=>x.uid===si.uid); if(i<schedule.length-1){ schedule.splice(i,1); schedule.splice(i+1,0,si); saveToStorage(); renderSchedule(); announce(`${si.name} moved down`); } });
+
+        // drag for desktop reorder
+        li.addEventListener('dragstart', (e)=>{ e.dataTransfer.setData('text/plain', 'schedule:'+si.uid); li.classList.add('dragging'); });
+        li.addEventListener('dragend', ()=> li.classList.remove('dragging'));
+
+      });
+    }
+
+    function addActivityToSchedule(act, index=null){ const newItem = {uid:uid(), id:act.id, name:act.name, icon:act.icon, duration: act.duration}; if(index===null) schedule.push(newItem); else schedule.splice(index,0,newItem); saveToStorage(); renderSchedule(); announce(`${act.name} added`); }
+
+    // Drop logic (works on desktop and tablet pointer drop)
+    scheduleList.addEventListener('dragover', (e)=>{ e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
+    scheduleList.addEventListener('drop', (e)=>{
+      e.preventDefault(); const data = e.dataTransfer.getData('text/plain'); if(!data) return;
+      const children = Array.from(scheduleList.children);
+      let insertIndex = children.length;
+      for(let i=0;i<children.length;i++){
+        const rect = children[i].getBoundingClientRect();
+        if(e.clientY < rect.top + rect.height/2){ insertIndex = i; break; }
+      }
+
+      if(data.startsWith('{')){
+        try{ const act = JSON.parse(data); const newItem = {uid:uid(), id:act.id, name:act.name, icon:act.icon, duration:act.duration}; schedule.splice(insertIndex,0,newItem); saveToStorage(); renderSchedule(); announce(`${act.name} added`); }
+        catch(err){ console.warn('drop parse err', err); }
+      } else if(data.startsWith('schedule:')){
+        const uid = data.split(':')[1]; const draggedIndex = schedule.findIndex(x=>x.uid===uid); if(draggedIndex===-1) return;
+        const [item] = schedule.splice(draggedIndex,1);
+        let idx = insertIndex;
+        if(draggedIndex < insertIndex) idx = insertIndex -1;
+        schedule.splice(idx,0,item);
+        saveToStorage(); renderSchedule(); announce(`${item.name} moved`);
+      }
+    });
+
+    // Clear selection when clicking outside
+    document.addEventListener('click', (e)=>{ if(!e.target.closest('.schedule-item')) { selectedBox.innerHTML=''; } });
+
+    function selectStep(si, idx){ selectedBox.innerHTML = `<div style="display:flex;gap:10px;align-items:center"><div style="font-size:28px">${si.icon}</div><div><div style="font-weight:800">${si.name}</div><div class="muted">#${idx+1} • ${si.duration}s</div></div></div>`; }
+
+    // ------- Runner -------
+    function startRoutine(){ if(schedule.length===0){ alert('Add some activities first'); return; } if(running) return; running = true; paused = false; runnerIndex = 0; disableEditing(true); runStep(runnerIndex); }
+    function disableEditing(v){ document.querySelectorAll('.add-btn, .si-duration, .btn-delete').forEach(el=> el.disabled = v); document.getElementById('startBtn').disabled = v; }
+
+    function runStep(index){ if(index >= schedule.length){ finishRoutine(); return; }
+      const step = schedule[index]; runnerRemaining = Math.max(1, Math.round(Number(step.duration)));
+      updateProgress(index);
+      announce(`Starting: ${step.name}`);
+      selectStep(step, index);
+      speak(step.name + '. ' + runnerRemaining + ' seconds.');
+
+      timerDisplay.textContent = formatTime(runnerRemaining);
+      clearInterval(runnerInterval);
+      runnerInterval = setInterval(()=>{
+        if(paused) return;
+        runnerRemaining -= 1;
+        if(runnerRemaining < 0) runnerRemaining = 0;
+        timerDisplay.textContent = formatTime(runnerRemaining);
+        const completedSeconds = schedule.slice(0,index).reduce((s,it)=>s+Number(it.duration),0) + (Number(step.duration) - runnerRemaining);
+        const totalSeconds = schedule.reduce((s,it)=>s+Number(it.duration),0) || 1;
+        const pct = Math.round(completedSeconds/totalSeconds*100);
+        progressBar.style.width = pct + '%';
+        progressCount.textContent = `${index+1} / ${schedule.length}`;
+        if(runnerRemaining <= 0){ clearInterval(runnerInterval); runnerInterval = null; runnerIndex = index+1; setTimeout(()=> runStep(runnerIndex), 350); }
+      }, 1000);
+    }
+
+    function pauseRoutine(){ if(!running) return; paused = !paused; const pBtn = document.getElementById('pauseBtn'); pBtn.textContent = paused ? 'Resume' : 'Pause'; document.getElementById('mPause') && (document.getElementById('mPause').textContent = pBtn.textContent); announce(paused ? 'Paused' : 'Resumed'); }
+    function stopRoutine(){ if(!running) return; running = false; paused = false; clearInterval(runnerInterval); runnerInterval = null; runnerIndex = 0; progressBar.style.width='0%'; timerDisplay.textContent='00:00'; progressCount.textContent=`0 / ${schedule.length}`; disableEditing(false); announce('Routine stopped'); }
+    function nextStep(){ if(!running) return; if(runnerInterval){ clearInterval(runnerInterval); runnerInterval = null; } runnerIndex = Math.min(schedule.length, runnerIndex+1); runStep(runnerIndex); }
+    function finishRoutine(){ running = false; disableEditing(false); progressBar.style.width='100%'; timerDisplay.textContent='00:00'; announce('Routine complete'); speak('Routine complete. Well done!'); }
+
+    function updateProgress(index){ /* placeholder for additional UI updates */ }
+
+    // Speech
+    function speak(text){ if('speechSynthesis' in window){ const u = new SpeechSynthesisUtterance(text); u.lang='en-US'; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); } }
+    function announce(text){ ariaLive.textContent = text; }
+
+    // Save/load
+    document.getElementById('saveBtn').addEventListener('click', ()=>{ const name = prompt('Name this routine (for local save):','My Routine'); if(!name) return; const saved = JSON.parse(localStorage.getItem('routinepal-saved')||'{}'); saved[name] = schedule; localStorage.setItem('routinepal-saved', JSON.stringify(saved)); renderSavedList(); alert('Saved locally'); });
+    document.getElementById('resetBtn').addEventListener('click', ()=>{ if(confirm('Clear current routine?')){ schedule=[]; saveToStorage(); renderSchedule(); } });
+
+    function renderSavedList(){ const sel = document.getElementById('savedSelect'); if(!sel) return; sel.innerHTML=''; const saved = JSON.parse(localStorage.getItem('routinepal-saved')||'{}'); const keys = Object.keys(saved); if(keys.length===0){ sel.innerHTML='<option value="">(none)</option>'; return; } keys.forEach(k=>{ const opt = document.createElement('option'); opt.value = k; opt.textContent = k; sel.appendChild(opt); }); }
+    document.getElementById('savedSelect') && document.getElementById('savedSelect').addEventListener('change', (e)=>{ const name=e.target.value; if(!name) return; const saved = JSON.parse(localStorage.getItem('routinepal-saved')||'{}'); schedule = (saved[name]||[]).map(x=> ({...x, uid: uid()})); saveToStorage(); renderSchedule(); announce('Loaded '+name); });
+
+    // Controls wiring
+    document.getElementById('startBtn').addEventListener('click', startRoutine);
+    document.getElementById('pauseBtn').addEventListener('click', pauseRoutine);
+    document.getElementById('stopBtn').addEventListener('click', stopRoutine);
+    document.getElementById('nextBtn').addEventListener('click', nextStep);
+
+    // Mobile bar wiring
+    document.getElementById('mStart').addEventListener('click', startRoutine);
+    document.getElementById('mPause').addEventListener('click', pauseRoutine);
+    document.getElementById('mNext').addEventListener('click', nextStep);
+
+    // Drawer & FAB behavior
+    function updateMobileUI(){ const isMobile = window.matchMedia('(max-width:720px)').matches; if(isMobile){ mobileBar.style.display='flex'; openActivitiesFab.style.display='flex'; } else { mobileBar.style.display='none'; openActivitiesFab.style.display='none'; activitiesDrawer.classList.remove('show'); } }
+    openActivitiesFab.addEventListener('click', ()=>{ activitiesDrawer.classList.add('show'); activitiesDrawer.setAttribute('aria-hidden','false'); });
+    closeDrawer.addEventListener('click', ()=>{ activitiesDrawer.classList.remove('show'); activitiesDrawer.setAttribute('aria-hidden','true'); });
+    window.addEventListener('resize', updateMobileUI); updateMobileUI();
+
+    // Bootstrap
+    loadFromStorage(); renderActivities(); renderSavedList(); renderSchedule(); progressCount.textContent = `0 / ${schedule.length}`; announce('RoutinePal loaded');
+
+    // Auto-save
+    setInterval(()=> saveToStorage(), 2000);
+
+    // Accessibility: prevent accidental image drag
+    document.addEventListener('dragstart', (e)=>{ if(e.target && e.target.tagName==='IMG') e.preventDefault(); });
+  </script>
+</body>
+</html>
